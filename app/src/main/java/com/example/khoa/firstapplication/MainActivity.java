@@ -12,15 +12,15 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import model.Post;
+import model.PostDatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    List<Post> items = new ArrayList<Post>();
+    ArrayAdapter<Post> itemsAdapter;
     ListView lvItems;
     private final int REQUEST_CODE = 20;
 
@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         lvItems = (ListView)findViewById(R.id.lvItems);
-        items = new ArrayList<>();
+        items = new ArrayList<Post>();
         readItems();
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        itemsAdapter = new ArrayAdapter<Post>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
     }
@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        deleteItem(items.get(position));
                         items.remove(position);
                         itemsAdapter.notifyDataSetChanged();
-                        writeItems();
                         return true;
                     }
                 }
@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void launchEditView(int position) {
-        String selectedItem = items.get(position);
+        String content = items.get(position).getContent();
         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-        /* Put extras into the bundle for access in the second activity */
-        i.putExtra("selectedItem", selectedItem);
+        /*Put extras into the bundle for access in the second activity*/
+        i.putExtra("content", content);
         i.putExtra("position", position);
         startActivityForResult(i, REQUEST_CODE);
     }
@@ -93,40 +93,45 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddItem(View view) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
-        String itemText = etNewItem.getText().toString();
-        itemsAdapter.add(itemText);
+        Post post = new Post();
+        post.setContent(etNewItem.getText().toString());
+        itemsAdapter.add(post);
         etNewItem.setText("");
-        writeItems();
+        writeItem(post);
+
     }
 
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
-        }
+        PostDatabaseHelper dbHelper = PostDatabaseHelper.getsInstance(this);
+        items = dbHelper.getAllPosts();
     }
 
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(todoFile, items);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void writeItem(Post post) {
+        PostDatabaseHelper dbHelper = PostDatabaseHelper.getsInstance(this);
+        int id = dbHelper.create(post);
+        post.setId(id);
+    }
+
+    private void deleteItem(Post post) {
+        PostDatabaseHelper dbHelper = PostDatabaseHelper.getsInstance(this);
+        dbHelper.deletePost(post);
+    }
+
+    private void updateItem(Post post) {
+        PostDatabaseHelper dbHelper = PostDatabaseHelper.getsInstance(this);
+        dbHelper.updatePost(post);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             // Extract name value from result extras
-            String selectedItem = data.getExtras().getString("selectedItem");
+            String content = data.getExtras().getString("content");
             int position = data.getExtras().getInt("position", -1);
-            items.set(position, selectedItem);
+            Post updatePost = items.get(position);
+            updatePost.setContent(content);
+            items.set(position, updatePost);
             itemsAdapter.notifyDataSetChanged();
-            writeItems();
+            updateItem(updatePost);
         }
     }
 }

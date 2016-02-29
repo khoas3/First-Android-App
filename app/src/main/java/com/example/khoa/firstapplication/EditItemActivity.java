@@ -18,7 +18,7 @@ public class EditItemActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         /* Assign selected item to text field of edit form */
-        String selectedItem = getIntent().getStringExtra("selectedItem");
+        String selectedItem = getIntent().getStringExtra("content");
         EditText mlEditText = (EditText) findViewById(R.id.mlEditText);
         mlEditText.setText(selectedItem);
         mlEditText.setSelection(mlEditText.getText().length());
@@ -29,7 +29,7 @@ public class EditItemActivity extends AppCompatActivity {
     public void onSubmit(View view) {
         EditText mlEditText = (EditText) findViewById(R.id.mlEditText);
         Intent data = new Intent();
-        data.putExtra("selectedItem", mlEditText.getText().toString());
+        data.putExtra("content", mlEditText.getText().toString());
         data.putExtra("position", position);
         setResult(RESULT_OK, data);
         /* Closes the activity and returns to first screen */

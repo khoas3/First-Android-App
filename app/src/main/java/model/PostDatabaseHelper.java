@@ -1,4 +1,4 @@
-package com.example.khoa.firstapplication;
+package model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -23,7 +23,9 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
 
     /* Post table column */
     private static final String KEY_POST_ID = "id";
-    private static final String KEY_POST_TEXT = "text";
+    private static final String KEY_POST_CONTENT = "content";
+
+    private static final String TAG = "PostDatabase";
 
     private static PostDatabaseHelper sInstance;
 
@@ -49,8 +51,8 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_POSTS_TABLE = "CREATE TABLE " + TABLE_POSTS +
                 "(" +
-                KEY_POST_ID + " INTEGER PRIMARY KEY," + // Define a primary key
-                KEY_POST_TEXT + " TEXT" +
+                KEY_POST_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + // Define a primary key
+                KEY_POST_CONTENT + " TEXT NOT NULL" +
                 ")";
         db.execSQL(CREATE_POSTS_TABLE);
     }
@@ -58,32 +60,25 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion != newVersion) {
+            Log.w(TAG, "Upgrading database. Existing contents will be lost. ["
+                    + oldVersion + "] -> [" + newVersion + "]");
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             onCreate(db);
         }
     }
 
     /* Insert the post into database */
-    public void create(Post post) {
+    public int create(Post post) {
         // Create and/or open the database for writing
         SQLiteDatabase db = getWritableDatabase();
 
-        // It's a good idea to wrap our insert in a transaction. This helps with performance and ensures
-        // consistency of the database.
-        db.beginTransaction();
-        try {
-            // The user might already exist in the database (i.e. the same user created multiple posts).
-            ContentValues values = new ContentValues();
-            values.put(KEY_POST_TEXT, post.text);
+        ContentValues values = new ContentValues();
+        values.put(KEY_POST_CONTENT, post.content);
 
-            // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
-            db.insertOrThrow(TABLE_POSTS, null, values);
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.d("DB", "Error while trying to add post to database");
-        } finally {
-            db.endTransaction();
-        }
+        int id = (int) db.insert(TABLE_POSTS, null, values);
+        db.close();
+
+        return id;
     }
 
     // Get all posts in the database
@@ -96,7 +91,7 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
         String POSTS_SELECT_QUERY =
                 String.format("SELECT * FROM %s ORDER BY id DESC",
                         TABLE_POSTS
-                        );
+                );
 
         // "getReadableDatabase()" and "getWriteableDatabase()" return the same object (except under low
         // disk space scenarios)
@@ -106,13 +101,13 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
             if (cursor.moveToFirst()) {
                 do {
                     Post newPost = new Post();
-                    int id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_POST_ID)));
-                    newPost.text = cursor.getString(cursor.getColumnIndex(KEY_POST_TEXT));
+                    newPost.content = cursor.getString(cursor.getColumnIndex(KEY_POST_CONTENT));
+                    newPost.setId(cursor.getInt(cursor.getColumnIndex(KEY_POST_ID)));
                     posts.add(newPost);
                 } while(cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.d("DB", "Error while trying to get posts from database");
+            Log.d(TAG, "Error while trying to get posts from database");
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
@@ -126,10 +121,18 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_POST_TEXT, post.text);
+        values.put(KEY_POST_CONTENT, post.content);
 
         // Updating post with KEY_ID
         return db.update(TABLE_POSTS, values, KEY_POST_ID + " = ?",
-                new String[] { String.valueOf(post) });
+                new String[] { String.valueOf(post.getId()) });
+    }
+
+    /* Delete the post */
+    public void deletePost(Post post) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_POSTS, KEY_POST_ID + " = ?", new String[]{String.valueOf(post.getId())});
+        db.close();
     }
 }
