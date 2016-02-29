@@ -7,4 +7,4 @@ Completed:
  * [x] Required: User can successfully add and remove items from the todo list.
  * [x] Required: User can click on a todo then editing todo items. 
  
-First_App_demo.gif
+![Video Walkthrough](First_App_demo.gif)
