@@ -41,7 +41,7 @@ I'm a beginner with Android, it a bit hard to work, a lot of things to do.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2016 Khoa Nguyen
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
