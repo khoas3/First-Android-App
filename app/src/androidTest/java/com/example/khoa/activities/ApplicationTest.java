@@ -1,4 +1,4 @@
-package com.example.khoa.firstapplication;
+package com.example.khoa.activities;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

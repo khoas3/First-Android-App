@@ -1,4 +1,4 @@
-package com.example.khoa.firstapplication;
+package com.example.khoa.activities;
 
 import org.junit.Test;
 

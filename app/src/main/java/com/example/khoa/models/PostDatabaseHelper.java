@@ -1,4 +1,4 @@
-package com.example.khoa.model;
+package com.example.khoa.models;
 
 import android.content.ContentValues;
 import android.content.Context;

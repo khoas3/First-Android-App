@@ -1,4 +1,4 @@
-package com.example.khoa.model;
+package com.example.khoa.models;
 
 /**
  * Created by khoa.nguyen on 2/29/2016.

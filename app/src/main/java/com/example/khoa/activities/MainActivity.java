@@ -1,4 +1,4 @@
-package com.example.khoa.firstapplication;
+package com.example.khoa.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,16 +8,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.khoa.adapter.PostsAdapter;
-import com.example.khoa.model.Post;
-import com.example.khoa.model.PostDatabaseHelper;
+import com.example.khoa.adapters.PostsAdapter;
+import com.example.khoa.models.Post;
+import com.example.khoa.models.PostDatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
     List<Post> items = new ArrayList<Post>();
