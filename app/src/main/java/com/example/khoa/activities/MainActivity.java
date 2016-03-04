@@ -2,6 +2,7 @@ package com.example.khoa.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,10 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.khoa.adapters.PostsAdapter;
+import com.example.khoa.fragments.EditPostDialog;
+import com.example.khoa.fragments.MyAlertDialogFragment;
 import com.example.khoa.models.Post;
 import com.example.khoa.models.PostDatabaseHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MyAlertDialogFragment.CallBack{
     List<Post> items = new ArrayList<Post>();
 //    ArrayAdapter<Post> itemsAdapter;
     ListView lvItems;
@@ -67,11 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchEditView(int position) {
         String content = items.get(position).getContent();
-        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-        /*Put extras into the bundle for access in the second activity*/
-        i.putExtra("content", content);
-        i.putExtra("position", position);
-        startActivityForResult(i, REQUEST_CODE);
+        FragmentManager fm = getSupportFragmentManager();
+        EditPostDialog editPostDialog = EditPostDialog.newInstance(content, position);
+        editPostDialog.show(fm, "fragment_edit_post");
     }
 
     @Override
@@ -134,6 +135,17 @@ public class MainActivity extends AppCompatActivity {
             int position = data.getExtras().getInt("position", -1);
             Post updatePost = items.get(position);
             updatePost.setContent(content);
+            items.set(position, updatePost);
+            postsAdapter.notifyDataSetChanged();
+            updateItem(updatePost);
+        }
+    }
+
+    @Override
+    public void nameTextChange(String content, int position) {
+        Post updatePost = items.get(position);
+        updatePost.setContent(content);
+        if (items != null && postsAdapter != null) {
             items.set(position, updatePost);
             postsAdapter.notifyDataSetChanged();
             updateItem(updatePost);

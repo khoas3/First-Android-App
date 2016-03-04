@@ -16,6 +16,11 @@ public class Post {
         this.content = content;
     }
 
+    public Post(int id, String content) {
+        this.id = id;
+        this.content = content;
+    }
+
     public int getId() {
         return this.id;
     }
