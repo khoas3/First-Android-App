@@ -15,13 +15,15 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Post;
-import model.PostDatabaseHelper;
+import com.example.khoa.adapter.PostsAdapter;
+import com.example.khoa.model.Post;
+import com.example.khoa.model.PostDatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
     List<Post> items = new ArrayList<Post>();
-    ArrayAdapter<Post> itemsAdapter;
+//    ArrayAdapter<Post> itemsAdapter;
     ListView lvItems;
+    PostsAdapter postsAdapter ;
     private final int REQUEST_CODE = 20;
 
     @Override
@@ -33,9 +35,13 @@ public class MainActivity extends AppCompatActivity {
         lvItems = (ListView)findViewById(R.id.lvItems);
         items = new ArrayList<Post>();
         readItems();
-        itemsAdapter = new ArrayAdapter<Post>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdapter);
+//        itemsAdapter = new ArrayAdapter<Post>(this, android.R.layout.simple_list_item_1, items);
+//        lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
+        //load adapter.
+        postsAdapter = new PostsAdapter(this, items);
+        //fill data.
+        lvItems.setAdapter(postsAdapter);
     }
 
     private void setupListViewListener() {
@@ -53,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         deleteItem(items.get(position));
                         items.remove(position);
-                        itemsAdapter.notifyDataSetChanged();
+                        postsAdapter.notifyDataSetChanged();
                         return true;
                     }
                 }
@@ -95,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         Post post = new Post();
         post.setContent(etNewItem.getText().toString());
-        itemsAdapter.add(post);
+        postsAdapter.add(post);
         etNewItem.setText("");
         writeItem(post);
 
@@ -130,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             Post updatePost = items.get(position);
             updatePost.setContent(content);
             items.set(position, updatePost);
-            itemsAdapter.notifyDataSetChanged();
+            postsAdapter.notifyDataSetChanged();
             updateItem(updatePost);
         }
     }

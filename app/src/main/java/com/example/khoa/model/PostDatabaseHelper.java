@@ -1,4 +1,4 @@
-package model;
+package com.example.khoa.model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -101,7 +101,7 @@ public class PostDatabaseHelper extends SQLiteOpenHelper {
             if (cursor.moveToFirst()) {
                 do {
                     Post newPost = new Post();
-                    newPost.content = cursor.getString(cursor.getColumnIndex(KEY_POST_CONTENT));
+                    newPost.setContent(cursor.getString(cursor.getColumnIndex(KEY_POST_CONTENT)));
                     newPost.setId(cursor.getInt(cursor.getColumnIndex(KEY_POST_ID)));
                     posts.add(newPost);
                 } while(cursor.moveToNext());
